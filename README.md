@@ -41,15 +41,11 @@ For configuring Open Resty Server (NGINX as RP) we need the following additional
 
 Below are the steps involved to get openresty and its other dependency components installed. Below commands based on alpine linux.
 
-*echo "Installing required packages for OpenResty"
-
 apk --update add --virtual .build_deps build-base zlib-dev pcre-dev libressl-dev make openssl-dev gnupg libxslt-dev perl-dev
-
 apk --update add pcre libbz2 ca-certificates libressl gcc  libpcre3 libpcre3-dev libc-dev linux-headers gd-dev geoip-dev
+
 "Installing and compilation of OpenResty“
-
 curl https://openresty.org/download/openresty-1.15.8.1.tar.gz -o /tmp/openresty-1.15.8.1.tar.gz
-
 tar -xvf /tmp/openresty-1.15.8.1.tar.gz
 
 cd openresty-1.15.8.1 \
@@ -58,24 +54,16 @@ cd openresty-1.15.8.1 \
   && make install
   
 export PATH=/usr/local/openresty/bin:$PATH
-
 export PATH=/usr/local/openresty/luajit/bin:$PATH
-
 mkdir /usr/local/openresty/site/lualib/resty
-
 curl https://opm.openresty.org/api/pkg/tarball/zmartzone/lua-resty-openidc-1.7.2.opm.tar.gz -o /tmp/lua-resty-openidc-1.7.2.opm.tar.gz
-
 tar -zxvf /tmp/lua-resty-openidc-1.7.2.opm.tar.gz -C /tmp/lua-resty-openidc-1.7.2.opm
-
 cp /tmp/lua-resty-openidc-1.7.2.opm/lib/resty/openidc.lua  /usr/local/openresty/site/lualib/resty/openidc.lua
 
 "Installing opm packages"
 opm install bungle/lua-resty-session 
-
 opm install cdbattags/lua-resty-jwt
-
 opm install pintsized/lua-resty-http
-
 opm install zmartzone/lua-resty-openidc
 
 **What?** - lua-resty-openidc is a library for NGINX implementing the OpenID Connect Relying Party (RP) and the OAuth 2.0 Resource Server (RS) functionality. 
@@ -109,41 +97,23 @@ Below is the Nginx configuration block for Nexus. before routing to Nexus we are
 
 
 *server {
-
     resolver 127.0.0.11;
-    
     listen       8443;
-    
-    server_name  your_server_name;
-    
+    server_name  your_server_name; 
     ssl on;
-    
     ssl_certificate      /path/to/cer.pem;
-    
     ssl_certificate_key  /path/to/key.pem;
-    
     access_log  /path/to/access_nexus-prd-01.log;
-    
     error_log   /path/to/error_nexus-prd-01.log;
-    
     error_page   500 502 503 504  /50x.html;
-    
     # set client body size to 1000M #
-    
     client_max_body_size 1000M; 
-    
     set $session_secret 723p4hR234t36VsCD8g565325IC0022G;
-    
     location / {
-    
     access_by_lua_file /path/to/oidc.lua;
-    
     proxy_pass https://server_name:8443/;
-    
     proxy_set_header Host $host;
-    
     }
- 
 }
  *
 
