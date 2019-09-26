@@ -93,6 +93,8 @@ Pre-requisites:  Client ID and Secret ID should be registered with Auth server b
 
 **And also valid callback URL need to be set to allow all sub domains in your auth server otherwise callback would fail.**
 
+![](Images/Auth_redirect.png)
+
 Below is the Nginx configuration block for Nexus. before routing to Nexus we are calling Lua script which initiates the communication with Auth server.
 
 
