@@ -1,6 +1,6 @@
 # nginx-sso-nexus
-OIDC SSO implementation in reverse proxy for Nexus
 
+Nexus **does not support Oauth or SAML** for SSO implementation but with workaround it is possible to achieve SSO in Nexus. Below document explains how to configure Nexus, Nginx (Openresty) and authentication server. Purpose of this documentation is to bring together all the configuration in one place.
 
 # Nexus-SSO
 
@@ -8,7 +8,6 @@ OIDC SSO implementation in reverse proxy for Nexus
 
 ![](Images/SSO_Flow.png)
 
-Nexus **does not support Oauth or SAML** for SSO implementation but with workaround it is possible to achieve SSO in Nexus.
 
 **How ?**
 
