@@ -40,7 +40,7 @@ For configuring Open Resty Server (NGINX as RP) we need the following additional
 
 
 Below are the steps involved to get openresty and its other dependency components installed. Below commands based on alpine linux.
-
+```
 apk --update add --virtual .build_deps build-base zlib-dev pcre-dev libressl-dev make openssl-dev gnupg libxslt-dev perl-dev
 apk --update add pcre libbz2 ca-certificates libressl gcc  libpcre3 libpcre3-dev libc-dev linux-headers gd-dev geoip-dev
 
@@ -65,7 +65,7 @@ opm install bungle/lua-resty-session
 opm install cdbattags/lua-resty-jwt
 opm install pintsized/lua-resty-http
 opm install zmartzone/lua-resty-openidc
-
+```
 **What?** - lua-resty-openidc is a library for NGINX implementing the OpenID Connect Relying Party (RP) and the OAuth 2.0 Resource Server (RS) functionality. 
  
 
@@ -97,8 +97,8 @@ Pre-requisites:  Client ID and Secret ID should be registered with Auth server b
 
 Below is the Nginx configuration block for Nexus. before routing to Nexus we are calling Lua script which initiates the communication with Auth server.
 
-
-*server {
+```
+server {
     resolver 127.0.0.11;
     listen       8443;
     server_name  your_server_name; 
@@ -108,8 +108,7 @@ Below is the Nginx configuration block for Nexus. before routing to Nexus we are
     access_log  /path/to/access_nexus-prd-01.log;
     error_log   /path/to/error_nexus-prd-01.log;
     error_page   500 502 503 504  /50x.html;
-    # set client body size to 1000M #
-    client_max_body_size 1000M; 
+    client_max_body_size 1000M;
     set $session_secret 723p4hR234t36VsCD8g565325IC0022G;
     location / {
     access_by_lua_file /path/to/oidc.lua;
@@ -117,44 +116,32 @@ Below is the Nginx configuration block for Nexus. before routing to Nexus we are
     proxy_set_header Host $host;
     }
 }
- *
 
+```
 **Lua script : **
 
 Authentication variables to be set : We need to configure the Client ID and Secret ID in lua script as variables. 
 Below is the block of lua script where Auth server details are configured.
 
-*local opts = {
-
+```
+local opts = {
     -- Redirect uri which doesn't exist and cannot be '/'
-    
     redirect_uri_path = "/redirect_uri",
-    
-   discovery = "https://your_auth_server/.well-known/openid-configuration",
-   
-  client_id = "test-gba-nexus",
-  
-  client_secret = "aca0ca81-d001-4662-a146-b51ca44c81af",
-  
+    discovery = "https://your_auth_server/.well-known/openid-configuration",
+    client_id = "test-gba-nexus",
+    client_secret = "aca0ca81-d001-4662-a146-b51ca44c81af",
     ssl_verify = ngx.var.oidc_ssl_verify or "no",
-    
     redirect_uri_scheme = "https",
-    
     logout_path = ngx.var.oidc_logout_path,
-    
     scope = "openid profile",
-    
     redirect_logout_url = not (ngx.var.oidc_redirect_logout_url == "false"),
-    
     -- Prevent 'client_secret' to be nil:
-    
     -- https://github.com/pingidentity/lua-resty-openidc/blob/v1.5.3/lib/resty/openidc.lua#L353
-    
     token_endpoint_auth_method = "client_secret_post",
-    
     --refresh_session_interval = 900,
-    
     --access_token_expires_in = 3600,
-    
     --force_reauthorize = false
-}*
+}
+```
+**Conclusion:
+      You can find most of the configuration everywhere but not in one place for this smart workaround. Most important configuration lies in authserver. Valid redirect URI must be set to allow all the subdomains since the response which auth server creates would contain session state string which is random. So if you do not use * in valid redirect URI as shown in above screenshot, SSO would not work though you have all other configurations perfect.**
