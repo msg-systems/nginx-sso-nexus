@@ -102,11 +102,11 @@ server {
     ssl on;
     ssl_certificate      /path/to/cer.pem;
     ssl_certificate_key  /path/to/key.pem;
-    access_log  /path/to/access_nexus-prd-01.log;
-    error_log   /path/to/error_nexus-prd-01.log;
+    access_log  /path/to/nexus_access.log;
+    error_log   /path/to/nexus_error.log;
     error_page   500 502 503 504  /50x.html;
     client_max_body_size 1000M;
-    set $session_secret 723p4hR234t36VsCD8g565325IC0022G;
+    set $session_secret abcdefghjklmnopqrstuvwxyz;
     location / {
     access_by_lua_file /path/to/oidc.lua;
     proxy_pass https://server_name:8443/;
@@ -126,7 +126,7 @@ local opts = {
     redirect_uri_path = "/redirect_uri",
     discovery = "https://your_auth_server/.well-known/openid-configuration",
     client_id = "test-gba-nexus",
-    client_secret = "aca0ca81-d001-4662-a146-b51ca44c81af",
+    client_secret = "12345678-1234-1234-1234-1234567890ab",
     ssl_verify = ngx.var.oidc_ssl_verify or "no",
     redirect_uri_scheme = "https",
     logout_path = ngx.var.oidc_logout_path,
