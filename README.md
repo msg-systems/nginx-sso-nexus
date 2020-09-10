@@ -132,6 +132,8 @@ local opts = {
     logout_path = ngx.var.oidc_logout_path,
     scope = "openid profile",
     redirect_logout_url = not (ngx.var.oidc_redirect_logout_url == "false"),
+    -- to reduce the http header size by transmitting only the id token
+    session_contents = {id_token=true},
     -- Prevent 'client_secret' to be nil:
     -- https://github.com/pingidentity/lua-resty-openidc/blob/v1.5.3/lib/resty/openidc.lua#L353
     token_endpoint_auth_method = "client_secret_post",
@@ -139,6 +141,18 @@ local opts = {
     --access_token_expires_in = 3600,
     --force_reauthorize = false
 }
+
+local res, err = require("resty.openidc").authenticate(opts)
+
+if err then
+      ngx.status = 500
+      ngx.say(err)
+      ngx.exit(ngx.HTTP_INTERNAL_SERVER_ERROR)
+end
+
+-- Map the authenticated username from the token claim to the header parameter you configured in the "Rut Auth" in nexus
+ngx.req.set_header("REMOTE_USER", res.id_token.preferred_username)
+
 ```
 **Conclusion:
       You can find most of the configuration everywhere but not in one place for this smart workaround. Most important configuration lies in authserver. Valid redirect URI must be set to allow all the subdomains since the response which auth server creates would contain session state string which is random. So if you do not use * in valid redirect URI as shown in above screenshot, SSO would not work though you have all other configurations perfect.**
